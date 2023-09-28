@@ -9,18 +9,34 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tmm6907/Todo/constants"
 	"github.com/tmm6907/Todo/db"
-	"github.com/tmm6907/Todo/handlers"
+	"github.com/tmm6907/Todo/handler"
 	"gorm.io/gorm"
 )
+
+type Config struct {
+	ReleaseMode bool
+}
 
 type Server struct {
 	router *gin.Engine
 	db     *gorm.DB
 	port   string
+	config Config
+}
+
+func New(port string, config Config) *Server {
+	if config.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	return &Server{
+		router: gin.Default(),
+		port:   ":" + port,
+		config: config,
+	}
 }
 
 func (s *Server) RegisterRoutes() error {
-	h := &handlers.Handler{
+	h := &handler.Handler{
 		DB: s.db,
 	}
 	s.router.GET("/", func(ctx *gin.Context) {
@@ -62,10 +78,4 @@ func (s *Server) Run() {
 	s.ParseTemplates()
 	s.RegisterRoutes()
 	log.Fatal(s.router.Run(s.port))
-}
-
-func New(port string) *Server {
-	return &Server{
-		router: gin.Default(),
-		port:   ":" + port}
 }

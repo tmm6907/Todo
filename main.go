@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	router := server.New(constants.INTERNAL_PORT)
-	router.Run()
+	s := server.New(constants.INTERNAL_PORT, server.Config{ReleaseMode: true})
+	s.Run()
 }
